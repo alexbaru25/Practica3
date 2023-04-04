@@ -17,7 +17,7 @@ LEFT_PLAYER = 0
 RIGHT_PLAYER = 1
 PLAYER_COLOR = [GREEN, YELLOW]
 PLAYER_HEIGHT = 70
-PLAYER_WIDTH = 10
+PLAYER_WIDTH = 50
 
 BALL_COLOR = WHITE
 BALL_SIZE = 10
@@ -50,29 +50,27 @@ class Player():
         if self.pos[Y] < 0:
             self.pos[Y] = 0
     
-    def dispara(self):
-        pass
 
     def __str__(self):
         return f"P<{SIDES[self.side], self.pos}>"
 
 class Ball():
-    def __init__(self, velocity):
-        self.pos=[ SIZE[X]//2, SIZE[Y]//2 ]
-        self.velocity = velocity
+    def __init__(self, pos):
+        self.pos=pos
+        self.velocity = 3
 
     def get_pos(self):
         return self.pos
 
     def update(self):
-        self.pos[X] += self.velocity[X]
+        self.pos[0]+= self.velocity
         #self.pos[Y] += self.velocity[Y]
 
-    def bounce(self, AXIS):#vamos
-        self.velocity[AXIS] = -self.velocity[AXIS]
+    def bounce(self):#vamos
+        self.velocity = -self.velocity
 
     def collide_player(self):
-        self.bounce(X)
+        self.bounce()
         print('ahiiiii')
         for i in range(3):
             self.update()
@@ -84,17 +82,19 @@ class Ball():
 class Game():
     def __init__(self):
         self.players = [Player(i) for i in range(2)]
-        self.ball = Ball([-2,3])
+        #self.ball = Ball([-2,3])
         self.score = [0,0]
         self.running = True
-    
-    def dispara(self,player):
-        self.players[player].dispara()
 
     def get_player(self, side):
         return self.players[side]
 
-    def get_ball(self):
+    def get_ball(self,player):
+        pos_jugador=self.players[player].get_pos()
+        if player ==RIGHT_PLAYER: 
+           self.ball=Ball([pos_jugador[0]-PLAYER_WIDTH ,pos_jugador[1]])
+        else:
+            self.ball=Ball([pos_jugador[0]+PLAYER_WIDTH ,pos_jugador[1]])
         return self.ball
 
     def get_score(self):
@@ -111,12 +111,10 @@ class Game():
 
     def moveDown(self, player):
         self.players[player].moveDown()
+    
 
-    def movements(self):
-        self.ball.update()
-        pos = self.ball.get_pos()
-        if pos[Y]<0 or pos[Y]>SIZE[Y]:
-            self.ball.bounce(Y)
+        
+
 
     def __str__(self):
         return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball}>"
@@ -164,12 +162,13 @@ def movements(self):
 class Paddle(pygame.sprite.Sprite):
     def __init__(self, player):
       super().__init__()
-      self.image = pygame.Surface([PLAYER_WIDTH, PLAYER_HEIGHT])
-      self.image.fill(BLACK)
-      self.image.set_colorkey(BLACK)#drawing the paddle
       self.player = player
-      color = PLAYER_COLOR[self.player.get_side()]
-      pygame.draw.rect(self.image, color, [0,0,PLAYER_WIDTH, PLAYER_HEIGHT])
+      if player.get_side()==LEFT_PLAYER:
+          self.image=pygame.image.load('marcianito_izda1.png')
+          pygame.draw.rect(self.image, 'blue', [0,0,PLAYER_WIDTH, PLAYER_HEIGHT],-1)
+      else:  
+          self.image=pygame.image.load('marcianito_dcha1.png')
+          pygame.draw.rect(self.image, 'green', [0,0,PLAYER_WIDTH, PLAYER_HEIGHT],-1)
       self.rect = self.image.get_rect()
       self.update()
 
@@ -194,22 +193,24 @@ class BallSprite(pygame.sprite.Sprite):
 
     def update(self):
         pos = self.ball.get_pos()
-        self.rect.centerx, self.rect.centery = pos
+        print(pos)
+        [self.rect.centerx, self.rect.centery] = pos
 
 
 
 class Display():
     def __init__(self, game):
+        self.hay_bola=False
         self.game = game
         self.paddles = [Paddle(self.game.get_player(i)) for i in range(2)]
 
-        self.ball = BallSprite(self.game.get_ball())
+        #self.ball = BallSprite(self.game.get_ball())
         self.all_sprites = pygame.sprite.Group()
         self.paddle_group = pygame.sprite.Group()
         for paddle  in self.paddles:
             self.all_sprites.add(paddle)
             self.paddle_group.add(paddle)
-        self.all_sprites.add(self.ball)
+        #self.all_sprites.add(self.ball)
 
         self.screen = pygame.display.set_mode(SIZE)
         self.clock =  pygame.time.Clock()  #FPS
@@ -231,15 +232,23 @@ class Display():
                 elif event.key == pygame.K_m:
                     self.game.moveDown(RIGHT_PLAYER)
                 elif event.key == pygame.K_d:
-                    self.game.dispara(LEFT_PLAYER)
+                    self.ball = BallSprite(self.game.get_ball(LEFT_PLAYER))
+                    self.ball.ball.update()
+                    self.all_sprites.add(self.ball)
+                    self.hay_bola=True
                 elif event.key == pygame.K_j:
-                    self.game.dispara(RIGHT_PLAYER)
-        if pygame.sprite.spritecollide(self.ball, self.paddle_group, False):
-           if self.ball.ball.get_pos()[0]>500:
-              self.game.score[LEFT_PLAYER]+=1
-           else:
-              self.game.score[LEFT_PLAYER]+=1
-           self.game.get_ball().collide_player()
+                    self.ball = BallSprite(self.game.get_ball(RIGHT_PLAYER))
+                    self.ball.ball.update()
+                    self.all_sprites.add(self.ball)
+                    self.hay_bola=True
+        if self.hay_bola:
+            if pygame.sprite.spritecollide(self.ball, self.paddle_group, False):
+               if self.ball.ball.get_pos()[0]>500:
+                  self.game.score[RIGHT_PLAYER]+=1
+               elif self.ball.ball.get_pos()[0]<500:
+                  self.game.score[LEFT_PLAYER]+=1
+               self.game.get_ball(RIGHT_PLAYER).collide_player()
+               self.game.get_ball(LEFT_PLAYER).collide_player()
         self.all_sprites.update()
 
 
@@ -292,7 +301,6 @@ def main():
         display = Display(game)
 
         while game.is_running():
-            game.movements()
             display.analyze_events()
             display.refresh()
             display.tick()
