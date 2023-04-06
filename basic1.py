@@ -47,8 +47,8 @@ class Player():
 
     def moveUp(self):
         self.pos[Y] -= DELTA
-        if self.pos[Y] < 0:
-            self.pos[Y] = 0
+        if self.pos[Y] < 60:
+            self.pos[Y] = 60
     
 
     def __str__(self):
@@ -87,7 +87,7 @@ class Game():
     def __init__(self):
         self.players = [Player(i) for i in range(2)]
         #self.ball = Ball([-2,3])
-        self.score = [10,10]
+        self.score = [11,11]
         self.running = True
 
     def get_player(self, side):
@@ -226,11 +226,11 @@ class Display():
     def refresh(self):
         self.screen.blit(self.background, (0, 0))
         score = self.game.get_score()
-        font = pygame.font.Font(None, 74)
-        text = font.render(f"{score[LEFT_PLAYER]}", 1, WHITE)
-        self.screen.blit(text, (250, 10))
-        text = font.render(f"{score[RIGHT_PLAYER]}", 1, WHITE)
-        self.screen.blit(text, (SIZE[X]-250, 10))
+
+        for i in range(score[LEFT_PLAYER]):
+            pygame.draw.rect(self.screen, GREEN, (10 + i * 31.5, 10, 20, 20))
+        for i in range(score[RIGHT_PLAYER]):
+            pygame.draw.rect(self.screen, RED, (675 - i * 31.5, 10, 20, 20))        
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
 
