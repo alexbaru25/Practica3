@@ -2,7 +2,7 @@ import pygame
 import sys, os
 import socket
 import pickle
-
+import random
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -25,7 +25,7 @@ FPS = 60
 DELTA = 30
 
 SIDES = ["left", "right"]
-
+DISPAROS=[]
 class Player():
     def __init__(self, side):
         self.side = side
@@ -61,9 +61,9 @@ class Ball():
         self.player=player
     def get_pos(self):
         if self.player== RIGHT_PLAYER:
-            self.pos[0]-=1
+            self.pos[0]-=2*random.random()+1
         else:
-            self.pos[0]+=1
+            self.pos[0]+=2*random.random()+1
         return self.pos
 
     def update(self):
@@ -87,7 +87,7 @@ class Game():
     def __init__(self):
         self.players = [Player(i) for i in range(2)]
         #self.ball = Ball([-2,3])
-        self.score = [0,0]
+        self.score = [10,10]
         self.running = True
 
     def get_player(self, side):
@@ -120,46 +120,7 @@ class Game():
     def __str__(self):
         return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball}>"
 
-'''
-def movements(self):
-    self.ball.update()
-    pos = self.ball.get_pos()
-    posicion_left=self.players[0].get_pos()
-    posicion_right=self.players[1].get_pos()
-    if pos[Y]<0 or pos[Y]>SIZE[Y]:
-        self.ball.bounce(Y)
-    if pos[X]==posicion_left[X] and pos[Y]==posicion_left[Y]:
-        self.score[LEFT_PLAYER] += 1
-        #self.ball.bounce(X)
-    elif pos[X]==posicion_right[X] and pos[Y]==posicion_right[Y]:
-        self.score[RIGHT_PLAYER] += 1
-       # self.ball.bounce(X)
-       
-    def movements(self):
-        self.ball.update()
-        pos = self.ball.get_pos()
-        posicion_left=self.players[0].get_pos()
-        posicion_right=self.players[1].get_pos()
-        if pos[Y]<0 or pos[Y]>SIZE[Y]:
-            self.ball.bounce(Y)
-        if posicion_left[X]+(PLAYER_WIDTH)<=pos[X]<=posicion_left[X]-(PLAYER_WIDTH) and posicion_left[Y]+(PLAYER_HEIGHT)<=pos[X]<=posicion_left[Y]-(PLAYER_HEIGHT):
-            self.score[LEFT_PLAYER] += 1
-            #self.ball.bounce(X)
-        elif posicion_right[X]+(PLAYER_WIDTH)<=pos[X]<=posicion_right[X]-(PLAYER_WIDTH) and posicion_right[Y]+(PLAYER_HEIGHT)<=pos[X]<=posicion_right[Y]-(PLAYER_HEIGHT):
-            self.score[RIGHT_PLAYER] += 1
-           # self.ball.bounce(X)       
-def movements(self):
-    self.ball.update()
-    pos = self.ball.get_pos()
-    if pos[Y]<0 or pos[Y]>SIZE[Y]:
-        self.ball.bounce(Y)
-    if pos[X]>SIZE[X]:
-        self.score[LEFT_PLAYER] += 1
-        self.ball.bounce(X)
-    elif pos[X]<0:
-        self.score[RIGHT_PLAYER] += 1
-        self.ball.bounce(X)
-'''
+
 class Paddle(pygame.sprite.Sprite):
     def __init__(self, player):
       super().__init__()
@@ -201,16 +162,7 @@ class BallSprite(pygame.sprite.Sprite):
         pos = self.ball.get_pos()
         print(pos)
         [self.rect.centerx, self.rect.centery] = pos
-'''
-def update(self):
-    if self.player == RIGHT_PLAYER:
-       pos = [-self.ball.get_pos()[0]-3,self.ball.get_pos()[1]]
-    else:
-       pos = [self.ball.get_pos()[0]+3,self.ball.get_pos()[1]]
-    
-    print(pos)
-    [self.rect.centerx, self.rect.centery] = pos
-'''
+
 class Display():
     def __init__(self, game):
         self.hay_bola=False
@@ -246,20 +198,27 @@ class Display():
                     self.game.moveDown(RIGHT_PLAYER)
                 elif event.key == pygame.K_d:
                     self.ball = BallSprite(self.game.get_ball(LEFT_PLAYER),LEFT_PLAYER)
+                    DISPAROS.append(self.ball)
                     self.all_sprites.add(self.ball)
                     self.hay_bola=True
                 elif event.key == pygame.K_j:
                     self.ball = BallSprite(self.game.get_ball(RIGHT_PLAYER),RIGHT_PLAYER)
+                    DISPAROS.append(self.ball)
                     self.all_sprites.add(self.ball)
                     self.hay_bola=True
         if self.hay_bola:
-            if pygame.sprite.spritecollide(self.ball, self.paddle_group, False):
-               if self.ball.ball.get_pos()[0]>500:
-                  self.game.score[RIGHT_PLAYER]+=1
-               elif self.ball.ball.get_pos()[0]<500:
-                  self.game.score[LEFT_PLAYER]+=1
-               self.game.get_ball(RIGHT_PLAYER).collide_player()
-               self.game.get_ball(LEFT_PLAYER).collide_player()
+            for i in DISPAROS:
+                if pygame.sprite.spritecollide(i, self.paddle_group, False):
+                   if i.ball.get_pos()[0]>500:
+                      i.ball.get_pos()[0]=2000
+                      self.game.score[RIGHT_PLAYER]-=1
+                   elif i.ball.get_pos()[0]<500:
+                      i.ball.get_pos()[0]=-2000
+                      self.game.score[LEFT_PLAYER]-=1
+        if self.game.score[RIGHT_PLAYER]==0:
+            self.game.stop()
+        if self.game.score[LEFT_PLAYER]==0:
+            self.game.stop()
         self.all_sprites.update()
 
 
