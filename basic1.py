@@ -61,9 +61,9 @@ class Ball():
         self.player=player
     def get_pos(self):
         if self.player== RIGHT_PLAYER:
-            self.pos[0]-=2*random.random()+1
+            self.pos[0]-=2*random.random()+2
         else:
-            self.pos[0]+=2*random.random()+1
+            self.pos[0]+=2*random.random()+2
         return self.pos
 
     def update(self):
@@ -150,7 +150,7 @@ class BallSprite(pygame.sprite.Sprite):
         self.image = pygame.Surface((BALL_SIZE, BALL_SIZE))
         self.image.fill(BLACK)
         self.image.set_colorkey(BLACK)
-        pygame.draw.rect(self.image, BALL_COLOR, [0, 0, BALL_SIZE, BALL_SIZE])
+        pygame.draw.rect(self.image, BALL_COLOR, [0, 0, BALL_SIZE, 5])
         self.rect = self.image.get_rect()
         self.update()
 
@@ -239,7 +239,7 @@ class Display():
 
     @staticmethod
     def quit():
-        pygame.quit()
+      pygame.quit()
 
 class Network:
     def __init__(self): ##this will connect to the server initially
