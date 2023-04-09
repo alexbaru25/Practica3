@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Apr  9 20:16:46 2023
+
+@author: Usuario
+"""
 import pygame
 import sys, os
 import socket
@@ -220,7 +226,7 @@ class Display():
                       DISPAROS.remove(i)
                       self.all_sprites.remove(i)
                 else:
-                     if i.ball.get_pos()[0]>800 or i.ball.get_pos()[0]<0:
+                     if i.ball.get_pos()[0]>800 or i.ball.get_pos()[0]<-300:
                          self.all_sprites.remove(i)
         if self.game.score[RIGHT_PLAYER]==0:
             self.game.stop()
