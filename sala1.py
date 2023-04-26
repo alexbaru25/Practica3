@@ -123,7 +123,9 @@ class Game():
 
     def moveUp(self, player):
         self.lock.acquire()
-        self.players[player].moveUp()
+        p = self.players[player]
+        p.moveUp()
+        self.players[player] = p
         self.lock.release()
         
     def moveDown(self, player):
