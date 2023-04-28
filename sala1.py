@@ -130,7 +130,9 @@ class Game():
         
     def moveDown(self, player):
         self.lock.acquire()
-        self.players[player].moveDown()
+        p = self.players[player]
+        p.moveDown()
+        self.players[player] = p
         self.lock.release()
         
     def get_info(self):
@@ -156,8 +158,7 @@ def player(side, conn, game):
                 command = conn.recv()
                 if command == "up":
                     game.moveUp(side)
-                    print(game.players[0].pos)
-                    print(game.players[1].pos)
+                    print(side)
                     print(game.get_info())
                 elif command == "down":
                     game.moveDown(side)
@@ -167,6 +168,7 @@ def player(side, conn, game):
                     game.get_ball(side)
                 elif command == "quit":
                     game.stop()
+            print(game.get_info())
             conn.send(game.get_info())
  
     except:

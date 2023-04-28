@@ -34,7 +34,6 @@ FPS = 60
 DELTA = 30
 
 SIDES = ["left", "right"]
-DISPAROS=[]
 class Player():
     def __init__(self, side):
         self.side = side
@@ -56,6 +55,7 @@ class Player():
 class Ball():
     def __init__(self, pos,player):
         self.pos=[ None, None ]
+        self.player = player
   
     def get_pos(self):
         return self.pos
@@ -89,8 +89,10 @@ class Game():
         return self.ball
 
     def set_ball_pos(self, dispa):
-        self.disparos=dispa
-    
+        self.disparos=[]
+        for i in dispa:
+            self.disparos.append(i)
+        print(self.disparos)
     def get_score(self):
         return self.score
     
@@ -150,10 +152,6 @@ class BallSprite(pygame.sprite.Sprite):
         self.update()
 
     def update(self):
-        if self.player == LEFT_PLAYER:
-           pos = [self.ball.get_pos()[0]-1000,self.ball.get_pos()[1]]
-        else:
-            pos = self.ball.get_pos()
         pos = self.ball.get_pos()
         print(pos)
         [self.rect.centerx, self.rect.centery] = pos
@@ -163,13 +161,16 @@ class Display():
         self.hay_bola=False
         self.game = game
         self.paddles = [Paddle(self.game.get_player(i)) for i in range(2)]
-        self.disparos=[]
+        self.disparos=game.disparos
         #self.ball = BallSprite(self.game.get_ball())
         self.all_sprites = pygame.sprite.Group()
         self.paddle_group = pygame.sprite.Group()
         for paddle  in self.paddles:
             self.all_sprites.add(paddle)
             self.paddle_group.add(paddle)
+        for i in self.disparos:
+            self.all_sprites.add(BallSprite(i,i.player))
+        
         #self.all_sprites.add(self.ball)
 
         self.screen = pygame.display.set_mode(SIZE)
@@ -204,6 +205,7 @@ class Display():
 
 
     def refresh(self):
+        self.all_sprites.update()       
         self.screen.blit(self.background, (0, 0))
         score = self.game.get_score()
 
