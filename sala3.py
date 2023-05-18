@@ -10,12 +10,15 @@ from multiprocessing import Process, Manager, Value, Lock
 import traceback
 import sys
 import random
+# Definición de colores
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255,255,0)
 GREEN = (0,255,0)
+
+# Definición de constantes y dimensiones
 X = 0
 Y = 1
 SIZE = (700, 510)
@@ -37,6 +40,8 @@ DISPAROS=[]
 ID=Value('i',0)
 class Player():
     def __init__(self, side):
+        # Inicialización de jugador con su posición inicial según el lado
+        # de la pantalla en el que se encuentra
         self.side = side
         if side == LEFT_PLAYER:
             self.pos = [10, 270]
@@ -56,7 +61,6 @@ class Player():
 
     def moveUp(self):
         self.pos[Y] -= DELTA
-        print(self.pos)
         if self.pos[Y] < 60:
             self.pos[Y] = 60
     
@@ -66,6 +70,8 @@ class Player():
 
 class Ball():
     def __init__(self, pos,player):
+        # Inicialización de la pelota con su posición y velocidad inicial
+        # También se almacena el jugador que la lanzó
         self.pos=pos
         self.velocity = 5
         self.player=player
@@ -91,15 +97,19 @@ class Ball():
 
 class Game():
     def __init__(self,manager):
-        self.players = manager.list( [Player(LEFT_PLAYER), Player(RIGHT_PLAYER)])
-        self.disparos=manager.dict({0:[]})
-        self.score = manager.list([11,11])
-        self.running = Value('i', 1)
-        self.lock=Lock()
-        
+        # Inicialización del juego con jugadores, puntuación y estado de ejecución
+        self.players = manager.list( [Player(LEFT_PLAYER), Player(RIGHT_PLAYER)])   # Lista compartida de jugadores
+        self.disparos=manager.dict({0:[]})  # Diccionario compartido de disparos
+        self.score = manager.list([11,11])  # Lista compartida de puntuación
+        self.running = Value('i', 1)  # Variable compartida para indicar el estado de ejecución del juego
+        self.lock=Lock()     # Semaforo para sincronización
+    
+    #Devuelve un jugador específico según el lado indicado
     def get_player(self, side):
         return self.players[side]
-
+    
+    #Crea y devuelve una instancia de la clase Ball según el jugador especificado.
+    #La posición de la pelota se determina en función de la posición del jugador y el lado.
     def get_ball(self,player):
         self.lock.acquire()
         pos_jugador=self.players[player].get_pos()
@@ -118,33 +128,33 @@ class Game():
         if player == 1:
             for i in lista:
                 if i.get_pos()[0]<715 and i.get_pos()[0]> 650 and self.players[player].get_pos()[1]==i.get_pos()[1]:
-                    lista.remove(i)
+                    lista.remove(i)      # Elimina el disparo si colisiona con la paleta del jugador
                     self.score[player]-=1
         else:
             for i in lista:
                 if i.get_pos()[0]<50 and i.get_pos()[0]> 0 and self.players[player].get_pos()[1]==i.get_pos()[1]:
-                    lista.remove(i)          
+                    lista.remove(i)      # Elimina el disparo si colisiona con la paleta del jugador  
                     self.score[player]-=1
-        self.disparos[0]=lista
+        self.disparos[0]=lista   # Actualiza la lista de disparos después de la colisión
         self.lock.release()
     
     def get_score(self):
-        return list(self.score)
+        return list(self.score)  # Devuelve una copia de la puntuación
 
     def is_running(self):
-        return self.running.value == 1
+        return self.running.value == 1   # Devuelve True si el juego está en ejecución, False de lo contrario
 
     def stop(self):
-        self.running.value = 0
+        self.running.value = 0           # Detiene la ejecución del juego
 
-    def moveUp(self, player):
+    def moveUp(self, player):   # Mueve hacia arriba al jugador
         self.lock.acquire()
         p = self.players[player]
         p.moveUp()
         self.players[player] = p
         self.lock.release()
         
-    def moveDown(self, player):
+    def moveDown(self, player):   # Mueve hacia abajo al jugador
         self.lock.acquire()
         p = self.players[player]
         p.moveDown()
@@ -157,13 +167,13 @@ class Game():
         lista=self.disparos[0]
         for i in lista:
             if i.get_pos()[0]>800 or i.get_pos()[0]<-300:
-                lista.remove(i)
+                lista.remove(i)         # Elimina los disparos que están fuera de la pantalla
         
         for i in range(len(lista)):
             q=lista[i]
-            q.update()
-            lista[i]=q
-        self.disparos[0]=lista
+            q.update()      # Actualiza la posición de cada disparo
+            lista[i]=q      # Actualiza la lista de disparos después del movimiento
+        self.disparos[0]=lista  # Actualiza la lista de disparos después del movimiento
         self.lock.release()
     
     
@@ -177,14 +187,13 @@ class Game():
             'score': list(self.score),
             'is_running': self.running.value == 1
         }
-        return info
+        return info       # Devuelve un diccionario con la información del juego
         
     def __str__(self):
         return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.disparos[0]}>"
     
 def player(side, conn, game):
     try:
-        print(f"starting player {SIDES[side]}:{game.get_info()}")
         conn.send( (side, game.get_info()) )
         while game.is_running():
             command = ""
@@ -192,8 +201,6 @@ def player(side, conn, game):
                 command = conn.recv()
                 if command == "up":
                     game.moveUp(side)
-                    print(side)
-                    print(game.get_info())
                 elif command == "down":
                     game.moveDown(side)
                 elif command == "collide":
@@ -203,8 +210,7 @@ def player(side, conn, game):
                 elif command == "quit":
                     game.stop()
             if side == 1:
-                 game.moveDisp()
-            print(game.get_info())               
+                 game.moveDisp()             
             conn.send(game.get_info())
  
     except:

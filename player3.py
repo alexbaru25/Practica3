@@ -12,12 +12,15 @@ import sys, os
 import socket
 import pickle
 import random
+# Definición de colores
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255,255,0)
 GREEN = (0,255,0)
+
+# Definición de constantes y dimensiones
 X = 0
 Y = 1
 SIZE = (700, 525)
@@ -70,17 +73,20 @@ class Ball():
    
 class Game():
     def __init__(self):
+        # Inicialización del juego con jugadores, puntuación y estado de ejecución
         self.players = [Player(i) for i in range(2)]
         self.score = [11,11]
         self.running = True
         self.disparos = []
         
+    #Devuelve un jugador específico según el lado indicado.    
     def get_player(self, side):
         return self.players[side]
-    
+    #Da la posicion en la que tiene que estar el jugador y que jugador
     def set_pos_player(self, side, pos):
         self.players[side].set_pos(pos)
-        
+     
+    #Crea y devuelve una instancia de la clase Ball según el jugador especificado.    
     def get_ball(self,player):
         pos_jugador=self.players[player].get_pos()
         if player ==RIGHT_PLAYER: 
@@ -89,11 +95,13 @@ class Game():
             self.ball=Ball([pos_jugador[0]+PLAYER_WIDTH ,pos_jugador[1]],LEFT_PLAYER)
         return self.ball
 
+    #Introduce en una lista los disparos
     def set_ball_pos(self, dispa):
         self.disparos=[]
         for i in dispa:
             self.disparos.append(i)
-        print(self.disparos)
+            
+    #Devuelve la puntuación actual del juego
     def get_score(self):
         return self.score
     
@@ -107,9 +115,11 @@ class Game():
         self.set_score(gameinfo['score'])
         self.running = gameinfo['is_running']
     
+    #Devuelve un valor booleano que indica si el juego está en ejecución.
     def is_running(self):
         return self.running
 
+    #Cambia el estado de ejecución del juego a inactivo
     def stop(self):
         self.running = False
 
@@ -120,6 +130,8 @@ class Game():
 
 class Paddle(pygame.sprite.Sprite):
     def __init__(self, player):
+      # Inicialización de una paleta según el jugador al que pertenece
+      # La imagen de la paleta se carga y se dibuja un rectángulo
       super().__init__()
       self.player = player
       if player.get_side()==LEFT_PLAYER:
@@ -133,7 +145,6 @@ class Paddle(pygame.sprite.Sprite):
 
     def update(self):
         pos = self.player.get_pos()
-        print("la pos es",pos)
         self.rect.centerx, self.rect.centery = pos
 
     def __str__(self):
@@ -142,6 +153,8 @@ class Paddle(pygame.sprite.Sprite):
 
 class BallSprite(pygame.sprite.Sprite):
     def __init__(self, ball,player):
+        # Inicialización de un sprite para representar el disparo
+        # Se dibuja un rectángulo para el disparo en el sprite
         super().__init__()
         self.ball = ball
         self.player=player
@@ -160,18 +173,18 @@ class BallSprite(pygame.sprite.Sprite):
 
 class Display():
     def __init__(self, game):
-        self.hay_bola=False
+        # Inicialización de la pantalla de juego y elementos relacionados
+        # Se cargan las imágenes de fondo y se crean los sprites de las paletas
+        self.hay_bola=False    # Variable para indicar si hay una bola en juego
         self.game = game
         self.paddles = [Paddle(self.game.get_player(i)) for i in range(2)]
-        self.disparos=game.disparos
-        #self.ball = BallSprite(self.game.get_ball())
+        self.disparos=game.disparos       # Obtención de los disparos del juego
         self.all_sprites = pygame.sprite.Group()
         self.paddle_group = pygame.sprite.Group()
         for paddle  in self.paddles:
             self.all_sprites.add(paddle)
             self.paddle_group.add(paddle)
-        
-        #self.all_sprites.add(self.ball)
+
 
         self.screen = pygame.display.set_mode(SIZE)
         self.clock =  pygame.time.Clock()  #FPS
@@ -180,34 +193,36 @@ class Display():
         pygame.init()
 
     def analyze_events(self,side):
-        events=[]
+        events=[]   # Lista para almacenar los eventos
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_ESCAPE:  #se detiene el juego
                     events.append("quit")
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN:  #El jugador indicado se mueve hacia arriba
                     events.append("down")
-                elif event.key == pygame.K_UP: 
+                elif event.key == pygame.K_UP:    #El jugador indicado se mueve hacia abajo 
                     events.append("up")
-                elif event.key == pygame.K_SPACE:
+                elif event.key == pygame.K_SPACE: #El jugador indicado se mueve hacia arriba
                     events.append("disparo")
                 
         z=0
+        # Recorre los sprites en self.all_sprites
         for i in self.all_sprites:
             if z>=2:
+               # Verifica si hay una colisión entre el sprite y self.paddle_group
                if pygame.sprite.spritecollide(i, self.paddle_group,False):
                    if side!=i.player:
-                       events.append("collide")
+                       events.append("collide") # Añade el evento "collide" a la lista 
+                                                # si hay una colisión entre el sprite y el lado indicado
             z+=1    
-        print(events,side)               
-        print(self.disparos)
-        self.disparos=self.game.disparos
+
+        self.disparos=self.game.disparos   # Actualiza self.disparos con los disparos del juego
         
         
 
         if self.game.score[side]==0:
-            events.append("quit")
-        return events
+            events.append("quit")   # Añade el evento "quit" a la lista si la puntuación del lado indicado es cero
+        return events  # Devuelve la lista de eventos al final del método
 
 
     def refresh(self):
@@ -219,7 +234,6 @@ class Display():
         for i in self.disparos:
             self.all_sprites.add(BallSprite(i,i.player))
         self.all_sprites.update()    
-        print(len(self.all_sprites))
         self.screen.blit(self.background, (0, 0))
         score = self.game.get_score()
 
@@ -228,7 +242,7 @@ class Display():
         for i in range(score[RIGHT_PLAYER]):
             pygame.draw.rect(self.screen, RED, (675 - i * 31.5, 10, 20, 20))        
         self.all_sprites.draw(self.screen)
-        pygame.display.flip()
+        pygame.display.flip()       #Actualiza la pantalla y muestra los cambios realizados.      
 
     def tick(self):
         self.clock.tick(FPS)
