@@ -2,7 +2,8 @@ Juego Multijugador de Disparos
 
 Este es un juego multijugador de disparos implementado en Python utilizando el módulo multiprocessing y pygame para la comunicación entre procesos.
 
-Instrucciones de ejecución
+Instrucciones de ejecución:
+
     Descarga todos los archivos del juego en tu máquina local.
     Abre una terminal y navega hasta el directorio donde se encuentran los archivos descargados.
     Ejecuta el siguiente comando para iniciar el servidor de juego:
