@@ -1,10 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Apr 13 16:29:51 2023
+#Irma Alonso 
+#Alejandro Barragán 
+#Germán Sánchez
 
-@author: alumno
-"""
 from multiprocessing.connection import Client
 import traceback
 import pygame
