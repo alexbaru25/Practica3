@@ -26,4 +26,5 @@ El objetivo del juego es que un jugador venza al contrario eliminando su nave, e
 El juego continuará hasta que uno de los jugadores decida salir o alguno de ellos se quede sin vidas.
 
 El juego cuenta con una versión local que se llama basic5.py. En esta versión los controles son: para el jugador de la izquierda las teclas "s" y "x" para subir y bajar y la "d" para disparar y para el jugador de la derecha las teclas "k" y "m" para subir y bjar y la "j" para disparar.
+
 Por otra parte, ademas del sala3.py, player3.py y basic5.py el proyecto consta de un fondo para el juego background.png, y dos imágenes que son dos naves espaciales que representan a los jugadores marcianito_dcha1.png y marcianito_izda1.png
