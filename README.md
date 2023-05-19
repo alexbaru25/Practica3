@@ -1,3 +1,5 @@
+Grupo formado por: Irma Alonso, Alejandro Barragán y Germán Sánchez.
+
 Juego Multijugador de Disparos
 
 Este es un juego multijugador de disparos implementado en Python utilizando el módulo multiprocessing y pygame para la comunicación entre procesos.
