@@ -1,3 +1,7 @@
+#Irma Alonso 
+#Alejandro Barragán 
+#Germán Sánchez
+
 import pygame
 import sys, os
 import socket
