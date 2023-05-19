@@ -5,10 +5,14 @@ Este es un juego multijugador de disparos implementado en Python utilizando el m
 Instrucciones de ejecución:
 
     Descarga todos los archivos del juego en tu máquina local.
+    
     Abre una terminal y navega hasta el directorio donde se encuentran los archivos descargados.
+    
     Ejecuta el siguiente comando para iniciar el servidor de juego:
           python sala3.py [dirección IP]
+          
     El servidor estará en espera de dos jugadores para conectarse.
+    
     Los jugadores pueden ejecutar el siguiente comando en terminales separadas para unirse al juego:
           python player3.py [dirección IP]
           
