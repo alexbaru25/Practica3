@@ -193,13 +193,13 @@ class Display():
         events=[]   # Lista para almacenar los eventos
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:  #se detiene el juego
+                if event.key == pygame.K_ESCAPE:  #Se ha pulsado la tecla para detener el juego
                     events.append("quit")
-                elif event.key == pygame.K_DOWN:  #El jugador indicado se mueve hacia arriba
+                elif event.key == pygame.K_DOWN:  #Se ha pulsado la tecla para que el jugador se mueva hacia arriba
                     events.append("down")
-                elif event.key == pygame.K_UP:    #El jugador indicado se mueve hacia abajo 
+                elif event.key == pygame.K_UP:    #Se ha pulsado la tecla para que el jugador se mueva hacia abajo
                     events.append("up")
-                elif event.key == pygame.K_SPACE: #El jugador indicado se mueve hacia arriba
+                elif event.key == pygame.K_SPACE: #Se ha pulsado la tecla para que el jugador haga un disparo
                     events.append("disparo")
                 
         z=0
